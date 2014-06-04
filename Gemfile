@@ -8,6 +8,7 @@ gem 'shotgun'
 gem 'napa'
 gem 'roar'
 gem 'grape-swagger'
+gem 'annotate'
 
 group :development,:test do
   gem 'pry'
