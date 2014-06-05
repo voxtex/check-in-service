@@ -1,19 +1,17 @@
 class StoresApi < Grape::API
   desc 'Get a list of stores'
-  params do
-    optional :ids, type: String, desc: 'comma separated store ids'
-  end
   get do
-    stores = Store.filter(declared(params, include_missing: false))
+    stores = Store.filter(permitted_params)
     represent stores, with: StoreRepresenter
   end
 
   desc 'Create an store'
   params do
+    requires :name, type: String, desc: 'name of the store'
   end
-
   post do
-    store = Store.create(declared(params, include_missing: false))
+    permitted_params[:private_key] = SecureRandom.base64(32)
+    store = Store.create(permitted_params)
     error!(present_error(:record_invalid, store.errors.full_messages)) unless store.errors.empty?
     represent store, with: StoreRepresenter
   end
@@ -22,7 +20,7 @@ class StoresApi < Grape::API
     requires :id, desc: 'ID of the store'
   end
   route_param :id do
-    desc 'Get an store'
+    desc 'Get a store'
     get do
       store = Store.find(params[:id])
       represent store, with: StoreRepresenter
@@ -32,9 +30,8 @@ class StoresApi < Grape::API
     params do
     end
     put do
-      # fetch store record and update attributes.  exceptions caught in app.rb
       store = Store.find(params[:id])
-      store.update_attributes!(declared(params, include_missing: false))
+      store.update_attributes!(permitted_params)
       represent store, with: StoreRepresenter
     end
   end

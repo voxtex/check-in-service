@@ -16,4 +16,10 @@ class CheckIn < ActiveRecord::Base
   belongs_to :user, inverse_of: :check_ins
 
   validates :store, :user, presence: true
+
+  # hash the check-in using the stores private key
+  def hash
+    data = [store.id, user.id, created_at].join('$')
+    Base64.encode64(OpenSSL::HMAC.digest('SHA256', store.private_key, data)).chomp
+  end
 end

@@ -1,30 +1,27 @@
 class CheckInsApi < Grape::API
-  desc 'Get a list of check-ins'
-  params do
-    optional :ids, type: String, desc: 'comma separated check_in ids'
-  end
-  get do
-    check_ins = CheckIn.filter(permitted_params)
-    represent check_ins, with: CheckInRepresenter
-  end
+  helpers do
+    def current_store
+      @current_store ||= Store.find(params[:store_id])
+    end
 
-  desc 'Create an check-in'
+    def authorize_store!
+      error!(present_error(:invalid_store, 'Invalid store id'), 401) unless current_store
+    end
+  end
+  desc 'Create a check-in'
   params do
+    requires :created_at, type: DateTime
+    requires :user_id, type: Integer
+    requires :hash, type: String
+    requires :store_id, type: Integer
   end
   post do
-    check_in = CheckIn.create(permitted_params)
+    authorize_store!
+    check_in = CheckIn.new(permitted_params)
+    valid_hash = check_in.hash == params[:hash].chomp
+    error!(present_error(:invalid_hash, 'Hash is invalid.')) unless valid_hash
+    check_in.save
     error!(present_error(:record_invalid, check_in.errors.full_messages)) unless check_in.errors.empty?
     represent check_in, with: CheckInRepresenter
-  end
-
-  params do
-    requires :id, desc: 'ID of the check-in'
-  end
-  route_param :id do
-    desc 'Get an check_in'
-    get do
-      check_in = CheckIn.find(params[:id])
-      represent check_in, with: CheckInRepresenter
-    end
   end
 end
