@@ -17,6 +17,8 @@ class Init < ActiveRecord::Migration
       t.belongs_to :store, null: false
       t.belongs_to :user, null: false
 
+      t.datetime :timestamp
+
       t.timestamps
     end
   end

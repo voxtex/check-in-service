@@ -13,4 +13,8 @@ class User < ActiveRecord::Base
 
   validates :username, presence: true
   has_many :check_ins, inverse_of: :user
+
+  def last_check_in
+    check_ins.order(created_at: :desc).first
+  end
 end

@@ -10,9 +10,7 @@ class StoresApi < Grape::API
     requires :name, type: String, desc: 'name of the store'
   end
   post do
-    permitted_params[:private_key] = SecureRandom.base64(32)
-    store = Store.create(permitted_params)
-    error!(present_error(:record_invalid, store.errors.full_messages)) unless store.errors.empty?
+    store = Store.create!(permitted_params)
     represent store, with: StoreRepresenter
   end
 
