@@ -32,15 +32,12 @@ class CheckIn < ActiveRecord::Base
   private
 
   def matching_hash
-    unless confirmation_hash.chomp == hash
-      errors.add(:confirmation_hash, 'does not match')
-    end
+    errors.add(:confirmation_hash, 'does not match') unless confirmation_hash == hash
   end
 
   def timestamp_in_recent_past
-    unless (Time.now - timestamp).between?(0, 1.minute)
-      errors.add(:created_at, 'is not valid')
-    end
+    return if (Time.now - timestamp).between?(0, 1.minute)
+    errors.add(:created_at, 'is not valid')
   end
 
   def rate_limit
@@ -50,8 +47,7 @@ class CheckIn < ActiveRecord::Base
     end
 
     last_check_in = user.last_check_in
-    if last_check_in && (Time.now - last_check_in.timestamp) < 5.minutes
-      errors.add(:base, 'Too many recent check-ins')
-    end
+    return unless last_check_in && (Time.now - last_check_in.timestamp) < 5.minutes
+    errors.add(:base, 'Too many recent check-ins')
   end
 end

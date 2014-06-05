@@ -1,5 +1,13 @@
+AllCops:
+  Exclude:
+    - db/*
+    - bin/*
+
 Documentation:
   Enabled: false
+
+DotPosition:
+  EnforcedStyle: trailing
 
 Encoding:
   Enabled: false
@@ -11,4 +19,10 @@ LineLength:
   Max: 120
 
 NumericLiterals:
+  Enabled: false
+
+SpaceInsideHashLiteralBraces:
+  EnforcedStyle: no_space
+
+TrailingBlankLines:
   Enabled: false
