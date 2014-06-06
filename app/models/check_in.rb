@@ -19,13 +19,14 @@ class CheckIn < ActiveRecord::Base
   belongs_to :user, inverse_of: :check_ins
 
   validates :store_id, :user_id, :timestamp, presence: true
+
   validate :timestamp_in_recent_past, on: :create
   validate :matching_hash, on: :create
   validate :rate_limit, on: :create
 
   # hash the check-in using the stores private key
   def hash
-    data = [store.id, user.id, created_at].join('$')
+    data = [store.id, user.id, timestamp].join('$')
     Base64.encode64(OpenSSL::HMAC.digest('SHA256', store.private_key, data)).chomp
   end
 
@@ -37,7 +38,7 @@ class CheckIn < ActiveRecord::Base
 
   def timestamp_in_recent_past
     return if (Time.now - timestamp).between?(0, 1.minute)
-    errors.add(:created_at, 'is not valid')
+    errors.add(:timestamp, 'is not valid')
   end
 
   def rate_limit
